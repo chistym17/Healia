@@ -1,51 +1,67 @@
 # Healia
 
-Calm, voice-first AI health consultation. Users describe symptoms, answer focused follow-ups, and get evidence-based guidance — not a diagnosis.
+Voice-first AI health consultation. Users describe symptoms, answer focused follow-ups, and get structured educational guidance — not a diagnosis.
+
+The hard problem is running a **safe, interruptible voice consult** while a separate decision layer gathers facts, retrieves medical references, and only then produces guidance.
+
+---
+
+## Flow
+
+```text
+Sign in → Start consult → Live voice (follow-ups) → Processing → Results
+```
+
+Empty sessions do not invent guidance — the product stops if not enough was shared.
+
+---
 
 ## Architecture
 
+Voice, product API, and consultation logic are separate so each can ship and fail independently. The browser never talks to the model brain directly.
+
 ```text
-React (Vite)  →  FastAPI  →  LiveKit agent
-                    ↓              ↓
-               Supabase Auth   Assessment RAG (MedQuAD)
-               Session history Knowledge RAG (StatPearls / hybrid FAISS+BM25)
-                    ↓              ↓
-               Postgres        Embeddings (local TEI or Hugging Face MiniLM)
+┌──────────────────────┐
+│  Client (React)      │
+│  UI + LiveKit audio  │
+└──────────┬───────────┘
+           │ HTTPS              WebRTC
+           ▼                       ▼
+┌──────────────────┐    ┌─────────────────────┐
+│  Product API     │    │  LiveKit Cloud      │
+│  Auth · sessions │    │  rooms + dispatch   │
+│  LiveKit tokens  │    └──────────┬──────────┘
+└────────┬─────────┘               │
+         │                         ▼
+         │              ┌──────────────────────────────┐
+         │              │  Consultation agent          │
+         │              │  Voice I/O (realtime)        │
+         │              │  Supervisor → next action    │
+         │              │  RAG → grounded guidance     │
+         │              └──────────────┬───────────────┘
+         │                             │
+         ▼                             ▼
+   Auth + Postgres              Vectors + text LLM
 ```
 
-**Product docs (source of truth):**
+### Control loop
 
-- [`frontend/PRODUCT.md`](frontend/PRODUCT.md) — scope & journey
-- [`frontend/UX.md`](frontend/UX.md) — interaction rules
-- [`frontend/DESIGN.md`](frontend/DESIGN.md) — visual system
-- [`db/README.md`](db/README.md) — schema & Supabase setup
+```text
+Patient turn → Supervisor (one JSON action) → validate state → speak approved line
+                     ↓ when ready
+              Retrieve references → generate guidance → results
+```
 
-## Stack
+Voice model is the mouth. Supervisor is the brain. Guidance is grounded in retrieval, not free recall.
 
-| Layer | Tech |
-|---|---|
-| Frontend | React, Vite, Tailwind |
-| API | FastAPI (auth, sessions, LiveKit token) |
-| Voice | LiveKit + AssemblyAI STT + Google TTS |
-| Data | Supabase Auth + Postgres (RLS) |
-| RAG | FAISS + BM25, optional BGE rerank |
-| Bot check | Cloudflare Turnstile (signup) |
+---
 
-## Local run (short)
+## Ideas that matter
 
-1. Apply [`db/schema.sql`](db/schema.sql) in Supabase; copy [`db/.env.example`](db/.env.example) → `backend/.env`.
-2. Frontend: copy [`frontend/.env.example`](frontend/.env.example) → `frontend/.env`.
-3. Backend: `cd backend && uvicorn main:app --reload --port 8000`
-4. Agent: run the LiveKit worker from `backend/livekit_agent` (see that package).
-5. Frontend: `cd frontend && npm install && npm run dev` (port 3000).
+- **Split voice and reasoning** — realtime for presence; structured LLM for decisions  
+- **Explicit consult state** — complaint, facts, asked topics; validated in code, not chat memory  
+- **Fail closed** — empty or broken runs end cleanly instead of looping nonsense  
 
-Embeddings:
+---
 
-- Local: `EMBEDDING_PROVIDER=local` + TEI at `EMBEDDING_SERVER`
-- Deploy / no TEI: `EMBEDDING_PROVIDER=huggingface` + `HF_TOKEN` (same MiniLM model as the indexes)
-
-Keep `RERANK_ENABLED=false` unless a rerank server is running.
-
-## Disclaimer
-
-Healia provides educational guidance only. It is not a medical diagnosis or substitute for professional care. For emergencies, seek urgent care.
+Educational guidance only — not a diagnosis or substitute for professional care.
