@@ -18,8 +18,9 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-# --- Voice model (Gemini Realtime — keep for speak/listen) ---
-MODEL = "gemini-2.5-flash-native-audio-preview-12-2025"
+# --- Voice model (Gemini Live — speak/listen only) ---
+# LiveKit preferred: gemini-3.8-live (replaces 2.5 native-audio preview).
+MODEL = (os.getenv("GEMINI_LIVE_MODEL") or "gemini-3.8-live").strip()
 VOICE = "Puck"
 TEMPERATURE = 0.5
 AGENT_NAME = "healia"
@@ -41,7 +42,7 @@ GREETING_INSTRUCTIONS = (
 )
 ENABLE_GREETING = True
 
-# --- Thinking (Gemini 2.5: thinking_budget; set 0 for lowest latency) ---
+# --- Thinking (2.5 only; omit for gemini-3.8-live per LiveKit docs) ---
 INCLUDE_THOUGHTS = False
 THINKING_BUDGET = 0
 

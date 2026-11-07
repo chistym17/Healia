@@ -72,11 +72,15 @@ def build_realtime_model() -> google.realtime.RealtimeModel:
         "voice": config.VOICE,
         "temperature": config.TEMPERATURE,
         "instructions": _voice_instructions(),
-        "thinking_config": types.ThinkingConfig(
+    }
+    # gemini-3.8-live: do not pass thinking_config (not configurable).
+    # Older 2.5 native-audio previews still accept thinking_budget.
+    model_id = (config.MODEL or "").lower()
+    if "3.8-live" not in model_id and "2.5" in model_id:
+        kwargs["thinking_config"] = types.ThinkingConfig(
             include_thoughts=config.INCLUDE_THOUGHTS,
             thinking_budget=config.THINKING_BUDGET,
-        ),
-    }
+        )
 
     if _uses_controlled_speech() or _uses_stt_turn_detection():
         # No Gemini auto-replies; supervisor + generate_reply own speech.
