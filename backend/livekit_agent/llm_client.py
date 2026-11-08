@@ -32,21 +32,26 @@ def _is_json_mode_failure(exc: BaseException) -> bool:
 
 async def _chat_completion(
     *,
-    system: str,
-    user: str,
     model: str,
     temperature: float,
     max_tokens: int | None,
     json_object: bool,
     reasoning_effort: str | None,
+    messages: list[dict[str, str]] | None = None,
+    system: str | None = None,
+    user: str | None = None,
 ) -> str:
     client = get_groq_client()
-    kwargs: dict[str, Any] = {
-        "model": model,
-        "messages": [
+    if messages is None:
+        if not system or user is None:
+            raise ValueError("system+user or messages required")
+        messages = [
             {"role": "system", "content": system},
             {"role": "user", "content": user},
-        ],
+        ]
+    kwargs: dict[str, Any] = {
+        "model": model,
+        "messages": messages,
         "temperature": temperature,
     }
     if max_tokens is not None:
@@ -74,8 +79,9 @@ async def _chat_completion(
 
 async def groq_json_completion(
     *,
-    system: str,
-    user: str,
+    system: str | None = None,
+    user: str | None = None,
+    messages: list[dict[str, str]] | None = None,
     model: str | None = None,
     temperature: float = 0.2,
     max_tokens: int | None = None,
@@ -85,6 +91,7 @@ async def groq_json_completion(
     return await _chat_completion(
         system=system,
         user=user,
+        messages=messages,
         model=model or config.SUPERVISOR_MODEL,
         temperature=temperature,
         max_tokens=max_tokens,
@@ -95,8 +102,9 @@ async def groq_json_completion(
 
 async def groq_text_completion(
     *,
-    system: str,
-    user: str,
+    system: str | None = None,
+    user: str | None = None,
+    messages: list[dict[str, str]] | None = None,
     model: str | None = None,
     temperature: float = 0.2,
     max_tokens: int | None = None,
@@ -106,6 +114,7 @@ async def groq_text_completion(
     return await _chat_completion(
         system=system,
         user=user,
+        messages=messages,
         model=model or config.SUPERVISOR_MODEL,
         temperature=temperature,
         max_tokens=max_tokens,

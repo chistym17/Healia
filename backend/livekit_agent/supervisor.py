@@ -22,7 +22,10 @@ ALLOWED_ACTIONS = frozenset(
 
 _SYSTEM_PROMPT = """
 You are the Healia consultation supervisor (brain). You do NOT speak to the patient directly.
-You read each completed patient turn and return ONE JSON decision for the voice agent.
+Prior messages are the real consultation transcript (patient = user, you = assistant).
+The latest user message is the current patient turn plus a compact consultation_state card.
+
+Return ONE JSON decision for the voice agent.
 
 Phase: gathering facts to build a final_query_draft (not a medical diagnosis).
 
@@ -33,34 +36,28 @@ Core rules:
 - Do not diagnose, prescribe, or give treatment plans.
 - English only.
 
-Complaint & corrections (critical):
-- Never invent a chief complaint from greetings, silence, or assessment hints alone.
-- Set state_updates.chief_complaint only when the patient clearly states a symptom/problem.
-- If the patient denies or corrects a complaint (e.g. "I'm not having hiccups",
-  "that's wrong", "what are you talking about"), you MUST:
-  1) put the wrong label in state_updates.deny_complaints,
-  2) set state_updates.clear_chief_complaint=true when the current chief_complaint is wrong,
-  3) apologize briefly and ask what problem they DO want help with (ask_followup or acknowledge).
-- Never ask again about anything in consultation_state.denied_complaints.
-- Prefer state_updates.corrections when the patient fixes earlier facts.
+Memory:
+- Use the transcript above. Do not restart or ignore earlier answers.
+- consultation_state.facts and asked_topics are committed memory — never re-ask those.
+- On every substantive patient answer, write it into state_updates.new_facts before the next question.
+- If the patient checks connectivity ("can you hear me"), acknowledge briefly and continue
+  from the next missing detail — do not ask how you can help again when a complaint is known.
+- If the answer is incomplete/unclear, re-ask the same pending topic once.
+
+Complaint & corrections:
+- Never invent a chief complaint from greetings or connectivity checks alone.
+- Set chief_complaint only when the patient clearly states a symptom/problem.
+- On denial/correction: deny_complaints, clear_chief_complaint if needed, apologize, re-ask what they need.
+- Never ask about denied_complaints.
 
 Follow-up quality:
-- The next question MUST respond to the patient's latest turn, not the next list item.
-- For ask_followup, set followup_topic to a short snake_case key (e.g. headache_location).
-- Do not ask about topics already in asked_topics unless correcting a fact.
-- Prefer acknowledge when the patient only greets or gives no new medical info.
-- Ask for the next missing useful detail about THEIR real complaint first
-  (where, when started, severity, change, key associated signs) before generic checklist items.
-- Do NOT rotate the same generic quartet every consult (medications / past history /
-  saw a doctor / what triggered it) unless complaint-specific details are already covered.
-- Use build_final_query when you have enough for a coherent final_query_draft.
-- Use escalate for emergency/red-flag language (chest pain, can't breathe, suicide, etc.).
+- Next missing detail order: location → onset → severity → associated symptoms → red flags,
+  then build_final_query. Do not grind a long checklist.
+- followup_topic must be a NEW snake_case key not already in asked_topics.
+- Prefer acknowledge only for pure greetings with no complaint yet.
+- escalate for emergency/red-flag language.
 
-Assessment hints (optional only):
-- If assessment_evidence.suggested_questions is present: treat each item as a THEME only
-  (theme / question_type / medical_topic). Never copy the hint question verbatim.
-- Ignore any hint that conflicts with the patient's latest answer or denied_complaints.
-- If assessment_evidence was skipped/empty, decide from patient_turn + consultation_state alone.
+Assessment hints (optional): themes only if present; never copy verbatim.
 
 JSON schema:
 {
@@ -150,6 +147,62 @@ def _ms_since(t0: float) -> int:
     return int((time.monotonic() - t0) * 1000)
 
 
+def _state_card(state: dict[str, Any]) -> dict[str, Any]:
+    """Compact committed memory — transcript is in chat messages, not here."""
+    return {
+        "chief_complaint": state.get("chief_complaint"),
+        "facts": state.get("facts") or {},
+        "asked_topics": state.get("asked_topics") or [],
+        "denied_complaints": state.get("denied_complaints") or [],
+        "phase": state.get("phase"),
+        "followup_count": state.get("followup_count", 0),
+        "final_query_draft": state.get("final_query_draft"),
+    }
+
+
+def build_supervisor_messages(
+    *,
+    patient_turn: str,
+    state: dict[str, Any],
+    assessment_evidence: dict[str, Any] | None = None,
+) -> list[dict[str, str]]:
+    """system + prior transcript turns + final user payload with state card."""
+    dialogue = list(state.get("recent_dialogue") or [])
+    current = (patient_turn or "").strip()
+
+    # Current patient line is already appended to the turn log before this call.
+    prior = dialogue
+    if (
+        prior
+        and prior[-1].get("role") == "patient"
+        and (prior[-1].get("text") or "").strip() == current
+    ):
+        prior = prior[:-1]
+
+    messages: list[dict[str, str]] = [{"role": "system", "content": _SYSTEM_PROMPT}]
+    for entry in prior:
+        text = (entry.get("text") or "").strip()
+        if not text:
+            continue
+        role = entry.get("role")
+        if role == "patient":
+            messages.append({"role": "user", "content": text})
+        elif role == "agent":
+            messages.append({"role": "assistant", "content": text})
+
+    payload: dict[str, Any] = {
+        "patient_turn": current,
+        "consultation_state": _state_card(state),
+    }
+    if assessment_evidence is not None:
+        payload["assessment_evidence"] = assessment_evidence
+
+    messages.append(
+        {"role": "user", "content": json.dumps(payload, ensure_ascii=False)}
+    )
+    return messages
+
+
 async def warm_supervisor(*, session_id: str) -> None:
     """Fire a tiny discarded supervisor call while greeting runs (cuts turn-1 TTFB)."""
     if not config.SUPERVISOR_ENABLED:
@@ -196,7 +249,7 @@ async def warm_supervisor(*, session_id: str) -> None:
 
 async def _generate_supervisor_text(
     *,
-    user_prompt: str,
+    messages: list[dict[str, str]],
     session_id: str,
     turn_id: str,
     t0: float,
@@ -207,11 +260,13 @@ async def _generate_supervisor_text(
         "request_sent",
         session_id=session_id,
         turn_id=turn_id,
-        detail=f"+{_ms_since(t0)}ms model={config.SUPERVISOR_MODEL} mode=groq",
+        detail=(
+            f"+{_ms_since(t0)}ms model={config.SUPERVISOR_MODEL} "
+            f"mode=groq messages={len(messages)}"
+        ),
     )
     text = await groq_json_completion(
-        system=_SYSTEM_PROMPT,
-        user=user_prompt,
+        messages=messages,
         model=config.SUPERVISOR_MODEL,
         temperature=config.SUPERVISOR_TEMPERATURE,
     )
@@ -240,7 +295,7 @@ async def run_supervisor(
     turn_id: str = "-",
     assessment_evidence: dict[str, Any] | None = None,
 ) -> SupervisorDecision:
-    """Part 3A: Groq text LLM; staged timing logs."""
+    """Part 3A: Groq text LLM with real multi-turn messages from the turn log."""
     t0 = time.monotonic()
     log_event(
         "SUP",
@@ -250,25 +305,22 @@ async def run_supervisor(
         detail=f"+0ms model={config.SUPERVISOR_MODEL} provider=groq",
     )
 
-    payload_in: dict[str, Any] = {
-        "patient_turn": patient_turn,
-        "consultation_state": state,
-    }
-    if assessment_evidence is not None:
-        payload_in["assessment_evidence"] = assessment_evidence
-
-    user_prompt = json.dumps(payload_in, ensure_ascii=False)
+    messages = build_supervisor_messages(
+        patient_turn=patient_turn,
+        state=state,
+        assessment_evidence=assessment_evidence,
+    )
 
     log_event(
         "SUP",
         "client_ready",
         session_id=session_id,
         turn_id=turn_id,
-        detail=f"+{_ms_since(t0)}ms note=groq",
+        detail=f"+{_ms_since(t0)}ms note=groq messages={len(messages)}",
     )
 
     text = await _generate_supervisor_text(
-        user_prompt=user_prompt,
+        messages=messages,
         session_id=session_id,
         turn_id=turn_id,
         t0=t0,

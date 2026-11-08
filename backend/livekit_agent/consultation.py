@@ -355,6 +355,9 @@ async def handle_patient_turn(
     )
     started = time.monotonic()
 
+    # Keep a short dialogue memory so the supervisor does not re-ask / reset.
+    state.record_patient_turn(patient_text)
+
     # Safety net: clear sticky wrong complaints before RAG/supervisor.
     for denied in detect_denied_complaints(patient_text, state.chief_complaint):
         state.deny_complaint(denied)
@@ -783,6 +786,7 @@ async def handle_patient_turn(
     try:
         guidance_payload = guidance_result.get("guidance") or guidance_result if guidance_result else {}
         if guidance_payload.get("spoken_answer"):
+            state.record_agent_utterance(str(guidance_payload.get("spoken_answer") or ""))
             await speak_guidance(
                 session,
                 guidance_payload,
@@ -790,6 +794,7 @@ async def handle_patient_turn(
                 turn_id=turn_id,
             )
         else:
+            state.record_agent_utterance(decision.spoken_utterance)
             await speak_decision(
                 session,
                 decision,

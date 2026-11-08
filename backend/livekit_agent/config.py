@@ -87,8 +87,8 @@ LLM_FATAL_UTTERANCE = (
     "Please try again in a little while."
 )
 
-# --- Part 4: Mock assessment RAG (interface only) ---
-ASSESSMENT_RAG_ENABLED = True
+# --- Part 4: Assessment RAG (MedQuAD themes) — off; supervisor uses dialogue state ---
+ASSESSMENT_RAG_ENABLED = False
 
 # --- Part 5: Knowledge RAG + spoken guidance (StatPearls corpus) ---
 KNOWLEDGE_RAG_ENABLED = True
