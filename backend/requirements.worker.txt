@@ -4,7 +4,8 @@ requests
 numpy
 qdrant-client
 groq
-google-genai
-livekit-agents[google]~=1.6
+# Live API WebSocket is v1beta-only; google-genai 3.0 defaults to v1 → HTTP 404.
+google-genai>=2.30.1,<3
+livekit-agents[google]~=1.8
 livekit-api
-livekit-plugins-assemblyai~=1.6
+livekit-plugins-assemblyai~=1.8

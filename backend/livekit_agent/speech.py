@@ -27,23 +27,31 @@ async def interrupt_speech(
     session: AgentSession | None,
     *,
     session_id: str = "-",
+    force_session: bool = True,
 ) -> None:
-    """Stop anything currently queued/playing for this session."""
+    """Stop anything currently queued/playing for this session.
+
+    force_session=True: always call session.interrupt (barge-in / cancel).
+    force_session=False: only interrupt if we have a tracked SpeechHandle —
+    avoids idle activity_start on Gemini Live (LiveKit #8003).
+    """
     handle = _active_handles.pop(session_id, None)
+    had_handle = handle is not None
     if handle is not None:
         try:
             handle.interrupt(force=True)
         except Exception:
             pass
-    if session is not None:
+    if session is not None and (force_session or had_handle):
         try:
             await session.interrupt(force=True)
         except RuntimeError:
             pass
         except Exception:
             pass
-    # Brief settle so Gemini/LiveKit can drop the prior generation.
-    await asyncio.sleep(0.08)
+    if had_handle or force_session:
+        # Brief settle so Gemini/LiveKit can drop the prior generation.
+        await asyncio.sleep(0.08)
 
 
 async def _speak_exact(
@@ -59,7 +67,14 @@ async def _speak_exact(
         return
 
     async with _lock_for(session_id):
-        await interrupt_speech(session, session_id=session_id)
+        # Only clear our own in-flight utterance; do not barge-in the realtime
+        # session when idle (LiveKit #8003 / Gemini manual activity).
+        if session_id in _active_handles:
+            await interrupt_speech(
+                session,
+                session_id=session_id,
+                force_session=False,
+            )
 
         last_error: BaseException | None = None
         for attempt in (1, 2):

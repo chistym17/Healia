@@ -89,6 +89,10 @@ def build_realtime_model() -> google.realtime.RealtimeModel:
                 disabled=True,
             )
         )
+        # LiveKit #8003: with AAD off, Gemini input transcripts open a generation
+        # that never gets turn_complete, so later generate_reply never reaches the wire.
+        # We already use AssemblyAI for patient text — disable Gemini input STT.
+        kwargs["input_audio_transcription"] = None
     elif config.VAD_ENABLED:
         kwargs["realtime_input_config"] = types.RealtimeInputConfig(
             automatic_activity_detection=types.AutomaticActivityDetection(

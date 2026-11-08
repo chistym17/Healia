@@ -273,7 +273,12 @@ async def _run_final_guidance(
     try:
         guidance_payload = guidance_result.get("guidance") or guidance_result
         if guidance_payload.get("spoken_answer"):
-            await speak_guidance(session, guidance_payload)
+            await speak_guidance(
+                session,
+                guidance_payload,
+                session_id=session_id,
+                turn_id=turn_id,
+            )
     except Exception as exc:
         emit_pipeline_event(
             session_id=session_id,
@@ -778,9 +783,19 @@ async def handle_patient_turn(
     try:
         guidance_payload = guidance_result.get("guidance") or guidance_result if guidance_result else {}
         if guidance_payload.get("spoken_answer"):
-            await speak_guidance(session, guidance_payload)
+            await speak_guidance(
+                session,
+                guidance_payload,
+                session_id=session_id,
+                turn_id=turn_id,
+            )
         else:
-            await speak_decision(session, decision)
+            await speak_decision(
+                session,
+                decision,
+                session_id=session_id,
+                turn_id=turn_id,
+            )
     except Exception as exc:
         emit_pipeline_event(
             session_id=session_id,
