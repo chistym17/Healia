@@ -6,6 +6,7 @@ Env (backend/.env):
   QDRANT_URL
   QDRANT_API_KEY
   QDRANT_TIMEOUT_SEC  (optional, default 30)
+  QDRANT_INFERENCE_MODEL  (optional; free MiniLM for query embeds)
 
 Commands (from backend/):
   python -m qdrant

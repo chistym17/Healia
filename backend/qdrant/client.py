@@ -23,6 +23,8 @@ def get_client():
         api_key=config.api_key(),
         timeout=config.timeout_sec(),
         check_compatibility=False,
+        # Server-side MiniLM via Document — without this the SDK tries FastEmbed locally.
+        cloud_inference=True,
     )
 
 

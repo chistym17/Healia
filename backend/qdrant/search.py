@@ -1,4 +1,8 @@
-"""Query Qdrant hybrid collections (dense + sparse BM25)."""
+"""Query Qdrant hybrid collections (dense + sparse BM25).
+
+Dense query vectors come from Qdrant Cloud Inference (Document + MiniLM),
+not Hugging Face / local TEI.
+"""
 
 from __future__ import annotations
 
@@ -6,7 +10,6 @@ import json
 from pathlib import Path
 from typing import Any
 
-import numpy as np
 from dotenv import load_dotenv
 
 from qdrant import config
@@ -20,21 +23,21 @@ KNOWLEDGE_CFG = BACKEND / "medical_rag" / "config.json"
 ASSESSMENT_CFG = BACKEND / "medical_rag" / "assessment" / "config.json"
 
 
-def _l2_normalize(vector: list[float]) -> list[float]:
-    arr = np.asarray(vector, dtype=np.float32)
-    norm = float(np.linalg.norm(arr))
-    if norm < 1e-12:
-        return arr.tolist()
-    return (arr / norm).astype(np.float32).tolist()
+def _truncate(text: str, max_chars: int) -> str:
+    text = (text or "").strip()
+    if max_chars <= 0 or len(text) <= max_chars:
+        return text or " "
+    return text[:max_chars]
 
 
-def _embed(text: str, *, truncate_chars: int = 900, timeout: float = 60.0) -> list[float]:
-    from utils.embeddings import embed_query
+def _dense_document(text: str, *, truncate_chars: int = 900):
+    """Cloud Inference Document for the dense MiniLM named vector."""
+    from qdrant_client.models import Document
 
-    vector = embed_query(text, truncate_chars=truncate_chars, timeout=timeout)
-    if not vector:
-        raise RuntimeError("Embedding provider returned an empty vector")
-    return _l2_normalize(vector)
+    return Document(
+        text=_truncate(text, truncate_chars),
+        model=config.inference_model(),
+    )
 
 
 def _knowledge_hit(point, *, retriever: str) -> dict[str, Any]:
@@ -53,7 +56,7 @@ def _knowledge_hit(point, *, retriever: str) -> dict[str, Any]:
 def _query_points(
     collection: str,
     *,
-    dense: list[float] | None = None,
+    dense=None,
     sparse=None,
     mode: str,
     top_k: int,
@@ -67,7 +70,7 @@ def _query_points(
 
     if mode in ("faiss", "dense"):
         if dense is None:
-            raise ValueError("dense vector required")
+            raise ValueError("dense vector/document required")
         return client.query_points(
             collection_name=collection,
             query=dense,
@@ -116,12 +119,9 @@ def search_knowledge(
     emb = cfg.get("embedding", {})
     hy = cfg.get("hybrid", {})
     rr = cfg.get("reranker", {})
+    truncate = int(emb.get("truncate_chars", 900))
 
-    dense = _embed(
-        query,
-        truncate_chars=int(emb.get("truncate_chars", 900)),
-        timeout=float(emb.get("request_timeout_sec", 60)),
-    )
+    dense = _dense_document(query, truncate_chars=truncate)
     sparse = text_to_sparse(query)
 
     if mode in ("rerank", "hybrid_rerank"):
@@ -169,10 +169,9 @@ def search_assessment_raw(query: str, *, top_k: int = 30) -> list[dict[str, Any]
     """Dense search over assessment collection; returns payload rows + score."""
     cfg = json.loads(ASSESSMENT_CFG.read_text(encoding="utf-8"))
     emb = cfg.get("embedding", {})
-    dense = _embed(
+    dense = _dense_document(
         query,
         truncate_chars=int(emb.get("truncate_chars", 900)),
-        timeout=float(emb.get("request_timeout_sec", 60)),
     )
     points = _query_points(
         config.ASSESSMENT_COLLECTION,

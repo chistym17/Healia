@@ -18,6 +18,17 @@ ASSESSMENT_COLLECTION = "healia_assessment"
 DENSE_VECTOR = "dense"
 SPARSE_VECTOR = "bm25"
 
+# Qdrant Cloud Inference model (free MiniLM; must match indexed dim=384)
+DEFAULT_INFERENCE_MODEL = "sentence-transformers/all-minilm-l6-v2"
+
+
+def inference_model() -> str:
+    return (
+        os.getenv("QDRANT_INFERENCE_MODEL")
+        or os.getenv("EMBEDDING_MODEL")
+        or DEFAULT_INFERENCE_MODEL
+    ).strip()
+
 
 def url() -> str:
     return (os.getenv("QDRANT_URL") or "").strip().rstrip("/")

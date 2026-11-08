@@ -1,9 +1,12 @@
 """
-Query embedding client.
+Query embedding client for VECTOR_BACKEND=local (FAISS).
 
 Providers (EMBEDDING_PROVIDER):
   - local (default): TEI-compatible server via EMBEDDING_SERVER
   - huggingface: hosted MiniLM via Hugging Face Inference API
+
+When VECTOR_BACKEND=qdrant, assessment/knowledge search uses Qdrant Cloud
+Inference (Document + MiniLM) instead of this module.
 
 Indexes were built with sentence-transformers/all-MiniLM-L6-v2 (384-d).
 Keep that model for any hosted provider so FAISS stays valid.
