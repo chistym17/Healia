@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { HealiaLogo } from "@/v2/components/HealiaLogo";
 
 type AuthLayoutProps = {
   title: string;
@@ -17,10 +18,10 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             to="/"
             className="flex items-center gap-2 text-healia-text transition-opacity hover:opacity-80"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-healia-brand text-xs font-semibold text-white">
-              H
-            </span>
-            <span className="font-semibold tracking-tight">Healia</span>
+            <HealiaLogo
+              markClassName="h-7 w-7"
+              wordClassName="font-serif text-lg font-semibold tracking-tight"
+            />
           </Link>
         </div>
       </header>
@@ -31,7 +32,7 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             <p className="text-sm font-semibold uppercase tracking-[0.12em] text-healia-brand">
               Your health, calmly guided
             </p>
-            <h1 className="mt-4 max-w-lg text-4xl font-semibold leading-tight tracking-tight text-healia-text xl:text-[2.75rem] xl:leading-[1.15]">
+            <h1 className="mt-4 max-w-lg text-4xl font-medium leading-[1.15] text-healia-text xl:text-[2.75rem]">
               Sign in to save consultations and revisit your guidance.
             </h1>
             <p className="mt-5 max-w-lg text-lg leading-relaxed text-healia-text-secondary">
@@ -40,9 +41,9 @@ export function AuthLayout({ title, subtitle, children, footer }: AuthLayoutProp
             </p>
           </section>
 
-          <section className="rounded-xl border border-healia-border bg-healia-bg-secondary p-6 shadow-sm md:p-8">
+          <section className="rounded-3xl bg-white p-6 shadow-[0_24px_60px_-36px_rgba(23,32,29,0.4)] ring-1 ring-healia-border/70 md:p-8">
             <div className="mb-6">
-              <h2 className="text-2xl font-semibold tracking-tight text-healia-text">
+              <h2 className="text-3xl font-medium text-healia-text">
                 {title}
               </h2>
               <p className="mt-2 text-sm text-healia-text-secondary">{subtitle}</p>

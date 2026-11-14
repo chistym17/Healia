@@ -19,7 +19,8 @@ export default {
 		},
 		extend: {
 			fontFamily: {
-				sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+				sans: ['Montserrat', 'system-ui', '-apple-system', 'BlinkMacSystemFont', '"Segoe UI"', 'sans-serif'],
+				serif: ['"Playfair Display"', 'Georgia', 'serif'],
 			},
 			maxWidth: {
 				content: '720px',
@@ -28,7 +29,7 @@ export default {
 			},
 			colors: {
 				healia: {
-					bg: '#F8F8F5',
+					bg: '#F7F8F6',
 					'bg-secondary': '#FFFFFF',
 					text: '#17201D',
 					'text-secondary': '#5F6965',
@@ -37,7 +38,7 @@ export default {
 					'brand-dark': '#104944',
 					'brand-light': '#E6F1EF',
 					border: '#DDE3E0',
-					'border-subtle': '#E9EDEB',
+					'border-subtle': '#E7ECE9',
 					success: '#2F6F55',
 					warning: '#9A6A20',
 					danger: '#B54747',

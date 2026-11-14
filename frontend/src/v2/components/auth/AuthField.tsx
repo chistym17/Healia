@@ -28,7 +28,7 @@ export function AuthField({
       <input
         id={fieldId}
         className={cn(
-          "w-full rounded-lg border border-healia-border bg-healia-bg px-3.5 py-2.5 text-sm text-healia-text outline-none transition-colors placeholder:text-healia-text-muted focus:border-healia-brand focus:ring-2 focus:ring-healia-brand/20",
+          "w-full rounded-2xl border border-healia-border bg-healia-bg px-4 py-3 text-sm text-healia-text outline-none transition-colors placeholder:text-healia-text-muted focus:border-healia-brand focus:ring-2 focus:ring-healia-brand/15",
           error && "border-healia-danger focus:border-healia-danger focus:ring-healia-danger/20",
           className,
         )}

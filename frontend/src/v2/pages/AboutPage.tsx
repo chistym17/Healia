@@ -24,7 +24,7 @@ export default function AboutPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-healia-brand">
             About
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-healia-text md:text-4xl">
+          <h1 className="mt-3 text-3xl font-medium text-healia-text md:text-5xl">
             A calm health consultation assistant
           </h1>
           <p className="mt-4 text-base leading-relaxed text-healia-text-secondary md:text-lg">
@@ -96,9 +96,9 @@ export default function AboutPage() {
             {principles.map((item) => (
               <div
                 key={item.title}
-                className="rounded-xl border border-healia-border bg-healia-bg-secondary px-5 py-4"
+                className="rounded-3xl bg-white px-6 py-5 shadow-[0_18px_50px_-32px_rgba(23,32,29,0.45)] ring-1 ring-healia-border/70"
               >
-                <h3 className="text-sm font-semibold text-healia-text">
+                <h3 className="text-lg font-medium text-healia-text">
                   {item.title}
                 </h3>
                 <p className="mt-1.5 text-sm leading-relaxed text-healia-text-secondary">

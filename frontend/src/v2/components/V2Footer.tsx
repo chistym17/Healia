@@ -1,4 +1,5 @@
 import { Link } from "react-router-dom";
+import { HealiaLogo } from "./HealiaLogo";
 
 const links = [
   { label: "About", to: "/about" },
@@ -36,18 +37,18 @@ export function V2Footer({ variant = "full" }: V2FooterProps) {
   }
 
   return (
-    <footer className="border-t border-healia-border bg-healia-bg-secondary">
+    <footer className="border-t border-healia-border bg-healia-bg">
       <div className="mx-auto max-w-page px-5 md:px-8 lg:px-12">
-        <div className="flex flex-col gap-6 py-8 md:flex-row md:items-start md:justify-between md:py-10">
+        <div className="flex flex-col gap-8 py-12 md:flex-row md:items-start md:justify-between md:py-14">
           <div className="max-w-sm">
             <Link
               to="/"
               className="inline-flex items-center gap-2 text-healia-text transition-opacity hover:opacity-80"
             >
-              <span className="flex h-7 w-7 items-center justify-center rounded-md bg-healia-brand text-xs font-semibold text-white">
-                H
-              </span>
-              <span className="font-semibold tracking-tight">Healia</span>
+              <HealiaLogo
+                markClassName="h-7 w-7"
+                wordClassName="font-serif text-lg font-semibold tracking-tight"
+              />
             </Link>
             <p className="mt-3 text-sm leading-relaxed text-healia-text-secondary">
               Calm voice consultations with clear, evidence-based next steps.
@@ -63,7 +64,7 @@ export function V2Footer({ variant = "full" }: V2FooterProps) {
               <Link
                 key={link.to}
                 to={link.to}
-                className="text-sm text-healia-text-secondary transition-colors hover:text-healia-brand"
+                className="text-sm text-healia-text-secondary transition-colors duration-200 hover:text-healia-brand"
               >
                 {link.label}
               </Link>

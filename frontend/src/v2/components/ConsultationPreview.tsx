@@ -145,7 +145,7 @@ function ProcessingBadge() {
   ];
 
   return (
-    <div className="absolute -right-3 top-8 z-10 hidden rounded-lg border border-healia-border bg-healia-bg-secondary px-3.5 py-3 shadow-sm sm:block md:-right-5">
+    <div className="absolute -right-2 top-10 z-10 hidden rounded-2xl border border-healia-border/80 bg-white px-4 py-3.5 shadow-[0_16px_40px_-24px_rgba(23,32,29,0.45)] sm:block md:-right-4">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-healia-text-muted">
         Preparing guidance
       </p>
@@ -166,15 +166,15 @@ function ProcessingBadge() {
   );
 }
 
-export function ConsultationPreview() {
+export function ConsultationPreview({ showBadge = true }: { showBadge?: boolean }) {
   return (
     <div
-      className="relative mx-auto w-full max-w-md lg:max-w-none lg:pr-6"
+      className="relative mx-auto w-full max-w-md lg:max-w-none"
       aria-hidden="true"
     >
-      <ProcessingBadge />
+      {showBadge ? <ProcessingBadge /> : null}
 
-      <div className="overflow-hidden rounded-xl border border-healia-border bg-healia-bg-secondary shadow-sm">
+      <div className="overflow-hidden rounded-3xl border border-healia-border/80 bg-white shadow-[0_28px_70px_-36px_rgba(21,94,89,0.55)]">
         <VoiceStrip />
         <GuidancePreview />
       </div>

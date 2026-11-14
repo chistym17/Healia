@@ -34,7 +34,7 @@ export default function ConsultationHistoryPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-healia-brand">
               Your account
             </p>
-            <h1 className="mt-2 text-2xl font-semibold tracking-tight text-healia-text md:text-3xl">
+            <h1 className="mt-2 text-3xl font-medium text-healia-text md:text-4xl">
               Past consultations
             </h1>
             <p className="mt-2 max-w-lg text-sm text-healia-text-secondary">
@@ -78,7 +78,7 @@ export default function ConsultationHistoryPage() {
               </div>
             </div>
           ) : (
-            <ul className="divide-y divide-healia-border-subtle overflow-hidden rounded-xl border border-healia-border bg-healia-bg-secondary">
+            <ul className="divide-y divide-healia-border-subtle overflow-hidden rounded-3xl border border-healia-border/70 bg-white shadow-[0_18px_50px_-32px_rgba(23,32,29,0.4)]">
               {sessions.map((session) => {
                 const title = session.title || "Health consultation";
                 const isDeleting = deletingId === session.id;

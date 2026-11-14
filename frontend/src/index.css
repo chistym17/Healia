@@ -98,14 +98,29 @@
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-sans antialiased;
+  }
+
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    @apply font-serif;
+    letter-spacing: -0.02em;
+  }
+
+  ::selection {
+    background: #d5ebe7;
+    color: #104944;
   }
 }
 
 @layer components {
   .v2-root {
     @apply font-sans antialiased;
-    background-color: #F8F8F5;
+    background-color: #F7F8F6;
     color: #17201D;
   }
 
@@ -130,5 +145,99 @@
 
   .healia-transcript-scroll::-webkit-scrollbar-thumb:hover {
     background-color: #87918D;
+  }
+
+  .reveal {
+    opacity: 0;
+    transform: translateY(16px);
+    transition:
+      opacity 0.7s cubic-bezier(0.22, 1, 0.36, 1),
+      transform 0.7s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .reveal-in {
+    opacity: 1;
+    transform: none;
+  }
+
+  .hero-rise > * {
+    animation: healia-rise 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .hero-rise > *:nth-child(2) { animation-delay: 0.08s; }
+  .hero-rise > *:nth-child(3) { animation-delay: 0.16s; }
+  .hero-rise > *:nth-child(4) { animation-delay: 0.24s; }
+  .hero-rise > *:nth-child(5) { animation-delay: 0.32s; }
+
+  .topic-ticker-track {
+    display: flex;
+    width: max-content;
+    animation: healia-ticker 48s linear infinite;
+  }
+
+  .topic-ticker:hover .topic-ticker-track {
+    animation-play-state: paused;
+  }
+
+  .healia-float {
+    animation: healia-float 5.5s ease-in-out infinite;
+  }
+
+  .editorial-arrow {
+    transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
+  }
+
+  .group:hover .editorial-arrow {
+    transform: translateX(4px);
+  }
+
+  details.faq-item[open] .faq-body {
+    animation: healia-rise 0.4s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+}
+
+@keyframes healia-rise {
+  from {
+    opacity: 0;
+    transform: translateY(12px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+@keyframes healia-float {
+  0%,
+  100% {
+    transform: translateY(0);
+  }
+  50% {
+    transform: translateY(-10px);
+  }
+}
+
+@keyframes healia-ticker {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+
+  .reveal,
+  .reveal-in,
+  .hero-rise > * {
+    opacity: 1;
+    transform: none;
+    animation: none;
+    transition: none;
+  }
+
+  .topic-ticker-track,
+  .healia-float {
+    animation: none;
   }
 }

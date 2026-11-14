@@ -2,21 +2,16 @@ import { V2Button } from "./V2Button";
 
 export function CtaSection() {
   return (
-    <section className="bg-healia-bg-secondary">
-      <div className="mx-auto max-w-page px-5 py-16 md:px-8 md:py-20 lg:px-12">
-        <div className="rounded-xl border border-healia-border bg-healia-brand px-8 py-12 text-center md:px-16 md:py-16">
-          <h2 className="text-2xl font-semibold tracking-tight text-white md:text-3xl">
-            Ready to get started?
-          </h2>
-          <div className="mt-8">
-            <V2Button
-              to="/consultation"
-              className="bg-white text-healia-brand hover:bg-healia-brand-light focus-visible:ring-white"
-            >
-              Start Consultation
-            </V2Button>
-          </div>
-        </div>
+    <section className="mx-auto max-w-2xl px-5 py-16 text-center md:py-20">
+      <h2 className="text-3xl font-medium text-healia-text md:text-5xl">
+        Bring the symptom that is on your mind.
+      </h2>
+      <p className="mx-auto mt-4 max-w-md text-base leading-relaxed text-healia-text-secondary">
+        One voice visit, then a page you can reread. If it feels urgent, get
+        emergency care first.
+      </p>
+      <div className="mt-8">
+        <V2Button to="/consultation">Start consultation</V2Button>
       </div>
     </section>
   );

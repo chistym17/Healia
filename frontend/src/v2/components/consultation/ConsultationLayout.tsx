@@ -1,5 +1,6 @@
 import type { ReactNode } from "react";
 import { Link } from "react-router-dom";
+import { HealiaLogo } from "@/v2/components/HealiaLogo";
 import { V2Button } from "@/v2/components/V2Button";
 
 type ConsultationLayoutProps = {
@@ -32,10 +33,10 @@ export function ConsultationLayout({
             to="/"
             className="flex items-center gap-2 text-healia-text transition-opacity hover:opacity-80"
           >
-            <span className="flex h-7 w-7 items-center justify-center rounded-md bg-healia-brand text-xs font-semibold text-white">
-              H
-            </span>
-            <span className="font-semibold tracking-tight">Healia</span>
+            <HealiaLogo
+              markClassName="h-7 w-7"
+              wordClassName="font-serif text-lg font-semibold tracking-tight"
+            />
           </Link>
 
           {showAgentControls ? (

@@ -154,7 +154,6 @@ export function HowItWorks() {
                   </span>
                 </div>
 
-                {/* Text column */}
                 <div
                   className={`pl-14 md:pl-0 ${
                     isEven
@@ -173,7 +172,6 @@ export function HowItWorks() {
                   </p>
                 </div>
 
-                {/* Preview column */}
                 <div
                   className={`mt-6 pl-14 md:mt-0 md:pl-0 ${
                     isEven

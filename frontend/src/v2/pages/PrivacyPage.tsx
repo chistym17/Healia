@@ -59,7 +59,7 @@ export default function PrivacyPage() {
           <p className="text-xs font-semibold uppercase tracking-[0.14em] text-healia-brand">
             Privacy
           </p>
-          <h1 className="mt-3 text-3xl font-semibold tracking-tight text-healia-text md:text-4xl">
+          <h1 className="mt-3 text-3xl font-medium text-healia-text md:text-5xl">
             How Healia handles your information
           </h1>
           <p className="mt-4 text-base leading-relaxed text-healia-text-secondary md:text-lg">
@@ -78,7 +78,7 @@ export default function PrivacyPage() {
               key={section.title}
               className="border-b border-healia-border-subtle py-7"
             >
-              <h2 className="text-base font-semibold text-healia-text">
+              <h2 className="text-xl font-medium text-healia-text">
                 {section.title}
               </h2>
               <ul className="mt-3 space-y-2.5">

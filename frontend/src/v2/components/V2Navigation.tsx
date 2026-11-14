@@ -1,39 +1,37 @@
 import { Link } from "react-router-dom";
 import { V2Button } from "./V2Button";
+import { HealiaLogo } from "./HealiaLogo";
 import { useAuth } from "@/v2/context/AuthContext";
 
 export function V2Navigation() {
   const { user, isAuthenticated, logout } = useAuth();
 
   return (
-    <header className="sticky top-0 z-50 border-b border-healia-border-subtle bg-healia-bg/95 backdrop-blur-sm">
+    <header className="sticky top-0 z-50 border-b border-healia-border/80 bg-healia-bg/90 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-page items-center justify-between gap-3 px-5 md:px-8 lg:px-12">
         <Link
           to="/"
           className="flex items-center gap-2.5 text-healia-text transition-opacity hover:opacity-80"
         >
-          <span className="flex h-8 w-8 items-center justify-center rounded-lg bg-healia-brand text-sm font-semibold text-white">
-            H
-          </span>
-          <span className="text-xl font-semibold tracking-tight">Healia</span>
+          <HealiaLogo />
         </Link>
 
         <nav className="hidden items-center gap-8 md:flex">
           <Link
             to="/"
-            className="text-sm text-healia-text-secondary transition-colors hover:text-healia-text"
+            className="text-sm text-healia-text-secondary transition-colors duration-200 hover:text-healia-brand"
           >
             Home
           </Link>
           <Link
             to="/about"
-            className="text-sm text-healia-text-secondary transition-colors hover:text-healia-text"
+            className="text-sm text-healia-text-secondary transition-colors duration-200 hover:text-healia-brand"
           >
             About
           </Link>
           <Link
             to="/privacy"
-            className="text-sm text-healia-text-secondary transition-colors hover:text-healia-text"
+            className="text-sm text-healia-text-secondary transition-colors duration-200 hover:text-healia-brand"
           >
             Privacy
           </Link>

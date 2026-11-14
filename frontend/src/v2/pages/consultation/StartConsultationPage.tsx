@@ -29,7 +29,7 @@ export default function StartConsultationPage() {
             <p className="text-xs font-semibold uppercase tracking-[0.14em] text-healia-brand">
               Before you start
             </p>
-            <h1 className="mt-3 text-3xl font-semibold tracking-tight text-healia-text md:text-4xl md:leading-tight">
+            <h1 className="mt-3 text-3xl font-medium leading-tight text-healia-text md:text-5xl">
               Ready for your health consultation
             </h1>
             <p className="mt-4 max-w-lg text-base leading-relaxed text-healia-text-secondary md:text-lg">
@@ -55,7 +55,7 @@ export default function StartConsultationPage() {
             </div>
           </section>
 
-          <section className="rounded-xl border border-healia-border bg-healia-bg-secondary p-5 md:p-6">
+          <section className="rounded-3xl bg-white p-6 shadow-[0_18px_50px_-32px_rgba(23,32,29,0.45)] ring-1 ring-healia-border/70 md:p-7">
             <p className="text-[11px] font-semibold uppercase tracking-wider text-healia-text-muted">
               What to expect
             </p>

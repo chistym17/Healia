@@ -22,7 +22,7 @@ function GuidanceDocumentPreview() {
   ];
 
   return (
-    <div className="flex h-full flex-col overflow-hidden rounded-xl border border-healia-border bg-healia-bg-secondary">
+    <div className="flex h-full flex-col overflow-hidden rounded-3xl border border-healia-border/70 bg-white shadow-[0_18px_50px_-32px_rgba(23,32,29,0.45)]">
       <div className="border-b border-healia-border-subtle px-5 py-3.5">
         <p className="text-sm font-semibold text-healia-text">
           Your health guidance
@@ -59,7 +59,7 @@ function ReferencesPreview() {
   ];
 
   return (
-    <div className="flex h-full flex-col rounded-xl border border-healia-border bg-healia-bg-secondary p-5">
+    <div className="flex h-full flex-col rounded-3xl border border-healia-border/70 bg-white p-5 shadow-[0_18px_50px_-32px_rgba(23,32,29,0.45)]">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-healia-text-muted">
         References
       </p>
@@ -90,7 +90,7 @@ function ReferencesPreview() {
 
 function HonestyPreview() {
   return (
-    <div className="flex h-full flex-col justify-center rounded-xl border border-healia-border bg-healia-brand-light/50 p-5">
+    <div className="flex h-full flex-col justify-center rounded-3xl bg-healia-brand-light/70 p-6">
       <p className="text-[10px] font-semibold uppercase tracking-wider text-healia-brand">
         Honest limits
       </p>
@@ -106,7 +106,7 @@ function VoiceFirstPreview() {
   const waveformHeights = [18, 32, 24, 36, 28, 34, 20];
 
   return (
-    <div className="flex items-center gap-5 rounded-xl border border-healia-border bg-healia-bg-secondary px-5 py-4">
+    <div className="flex items-center gap-5 rounded-3xl border border-healia-border/70 bg-white px-5 py-4 shadow-[0_18px_50px_-32px_rgba(23,32,29,0.45)]">
       <div className="flex h-10 shrink-0 items-end gap-0.5">
         {waveformHeights.map((h, i) => (
           <div
@@ -130,11 +130,11 @@ export function ValueSection() {
   return (
     <section className="bg-healia-bg">
       <div className="mx-auto max-w-page px-5 py-20 md:px-8 md:py-24 lg:px-12">
-        <div className="mx-auto max-w-2xl text-center">
-          <p className="text-sm font-medium uppercase tracking-widest text-healia-brand">
+        <div className="max-w-xl">
+          <p className="text-xs font-semibold uppercase tracking-[0.18em] text-healia-brand">
             Why Healia
           </p>
-          <h2 className="mt-3 text-3xl font-semibold tracking-tight text-healia-text md:text-4xl">
+          <h2 className="mt-3 text-3xl font-medium text-healia-text md:text-4xl">
             Clear guidance, not a chat transcript
           </h2>
         </div>
